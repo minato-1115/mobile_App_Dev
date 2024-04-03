@@ -1,7 +1,48 @@
 from ctypes import alignment
 import flet as ft
-import form_module
+import pandas as pd
+from typing import Dict
+import os 
+
+
+data_global = None
 def main(page: ft.Page):
+    prog_bars: Dict[str, ft.ProgressRing] = {}
+    files = ft.Ref[ft.Column]()
+    upload_button = ft.Ref[ft.ElevatedButton]()
+
+    def file_picker_result(e: ft.FilePickerResultEvent):
+        global data_global
+        upload_button.current.disabled = True if e.files is None else False
+        prog_bars.clear()
+        files.current.controls.clear()
+
+        if e.files is not None:
+            for f in e.files:
+                prog = ft.ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
+                prog_bars[f.name] = prog
+                files.current.controls.append(ft.Row([prog, ft.Text(f.name)]))
+                page.session.set(f.name, f.path)
+                csv_path = os.path.join(os.path.dirname(__file__), f.path)
+                data = pd.read_csv(csv_path)
+                data_global = data
+               
+        page.update()
+
+    def upload_files(e):
+        print(data_global)
+        print("アップロードが完了しました")
+    
+    def on_upload_progress(e: ft.FilePickerUploadEvent):
+        prog_bars[e.file_name].value = e.progress
+        prog_bars[e.file_name].update()
+
+    file_picker = ft.FilePicker(on_result=file_picker_result, on_upload=on_upload_progress)
+
+    # hide dialog in a overlay
+    page.overlay.append(file_picker)
+
+
     def route_change(route):
         page.views.clear()
         page.views.append(
@@ -109,7 +150,20 @@ def main(page: ft.Page):
                         
                         ft.AppBar(title=ft.Text("Editting Table"), bgcolor=ft.colors.BLUE),
                         ft.Row([
-                        form_module.example()],ft.MainAxisAlignment.END)
+                            ft.ElevatedButton(
+                                "Select files...",
+                                icon=ft.icons.FOLDER_OPEN,
+                                on_click=lambda _: file_picker.pick_files(allow_multiple=True,allowed_extensions=["xlsx","csv"]),
+                            ),
+                            ft.Column(ref=files),
+                            ft.ElevatedButton(
+                                "Upload",
+                                ref=upload_button,
+                                icon=ft.icons.UPLOAD,
+                                on_click=upload_files,
+                                disabled=True,
+                            ),
+                        ],ft.MainAxisAlignment.END)
                     ],
                     bgcolor = ft.colors.WHITE
                 )
@@ -125,10 +179,5 @@ def main(page: ft.Page):
     page.on_view_pop = view_pop
     page.go(page.route)
 
-    
-
-
-ft.app(target=main, view=ft.AppView.WEB_BROWSER)
-
-
+ft.app(target=main)
 
