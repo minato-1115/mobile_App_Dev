@@ -4,7 +4,6 @@ import pandas as pd
 from typing import Dict
 import os 
 
-
 data_global = []
 def main(page: ft.Page):
     prog_bars: Dict[str, ft.ProgressRing] = {}
