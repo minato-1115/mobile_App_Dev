@@ -5,33 +5,47 @@ from typing import Dict
 import os 
 
 
-data_global = None
+data_global = []
 def main(page: ft.Page):
     prog_bars: Dict[str, ft.ProgressRing] = {}
     files = ft.Ref[ft.Column]()
     upload_button = ft.Ref[ft.ElevatedButton]()
-
+    viewmatrix_button = ft.Ref[ft.ElevatedButton]()
     def file_picker_result(e: ft.FilePickerResultEvent):
         global data_global
         upload_button.current.disabled = True if e.files is None else False
+        viewmatrix_button.current.disabled = True 
+         #添付の確認
         prog_bars.clear()
         files.current.controls.clear()
+        data_global.clear()
 
         if e.files is not None:
+            data_global = {}
             for f in e.files:
                 prog = ft.ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
                 prog_bars[f.name] = prog
                 files.current.controls.append(ft.Row([prog, ft.Text(f.name)]))
                 page.session.set(f.name, f.path)
-                csv_path = os.path.join(os.path.dirname(__file__), f.path)
-                data = pd.read_csv(csv_path)
-                data_global = data
-               
-        page.update()
+                  #パス保存の初期化　
+                data_global[f.name]= os.path.join(os.path.dirname(__file__), f.path)
+                print(data_global)  
+
+            print(data_global)
+        page.update()  
+#dataglobalをバックエンドにもっていって処理する。
+        
 
     def upload_files(e):
-        print(data_global)
+        for read_path in data_global.values():
+            testdata =pd.read_csv(read_path)
+            print(testdata)
         print("アップロードが完了しました")
+        upload_button.current.disabled = True
+        viewmatrix_button.current.disabled = False
+
+        page.update()
+        
     
     def on_upload_progress(e: ft.FilePickerUploadEvent):
         prog_bars[e.file_name].value = e.progress
@@ -45,6 +59,8 @@ def main(page: ft.Page):
 
     def route_change(route):
         page.views.clear()
+        page.window_height = 1000
+        page.window_width = 400
         page.views.append(
             ft.View(
                 "/",
@@ -116,6 +132,7 @@ def main(page: ft.Page):
                 ),
                 ],
                 bgcolor=ft.colors.WHITE,
+                
             )
         )
         if page.route == "/mathLogic":
@@ -155,15 +172,23 @@ def main(page: ft.Page):
                                 icon=ft.icons.FOLDER_OPEN,
                                 on_click=lambda _: file_picker.pick_files(allow_multiple=True,allowed_extensions=["xlsx","csv"]),
                             ),
-                            ft.Column(ref=files),
+                            ft.Row(ref=files),
                             ft.ElevatedButton(
                                 "Upload",
                                 ref=upload_button,
                                 icon=ft.icons.UPLOAD,
                                 on_click=upload_files,
                                 disabled=True,
+                                
                             ),
-                        ],ft.MainAxisAlignment.END)
+                        ],ft.MainAxisAlignment.START),
+                            ft.ElevatedButton(
+                                "表の抽出",
+                                ref=viewmatrix_button,
+                                icon=ft.icons.UPLOAD,
+                                on_click=print("表の抽出"),
+                                disabled=True,
+                            ),
                     ],
                     bgcolor = ft.colors.WHITE
                 )
