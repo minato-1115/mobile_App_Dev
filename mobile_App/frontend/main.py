@@ -4,7 +4,7 @@ import pandas as pd
 from typing import Dict
 import os 
 
-data_global = []
+data_global = {}
 def main(page: ft.Page):
     prog_bars: Dict[str, ft.ProgressRing] = {}
     files = ft.Ref[ft.Column]()
@@ -13,14 +13,14 @@ def main(page: ft.Page):
     def file_picker_result(e: ft.FilePickerResultEvent):
         global data_global
         upload_button.current.disabled = True if e.files is None else False
-        viewmatrix_button.current.disabled = True 
+        viewmatrix_button.current.disabled = True
          #添付の確認
         prog_bars.clear()
         files.current.controls.clear()
         data_global.clear()
 
         if e.files is not None:
-            data_global = {}
+            
             for f in e.files:
                 prog = ft.ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
                 prog_bars[f.name] = prog
@@ -54,7 +54,6 @@ def main(page: ft.Page):
 
     # hide dialog in a overlay
     page.overlay.append(file_picker)
-
 
     def route_change(route):
         page.views.clear()
@@ -172,6 +171,9 @@ def main(page: ft.Page):
                                 on_click=lambda _: file_picker.pick_files(allow_multiple=True,allowed_extensions=["xlsx","csv"]),
                             ),
                             ft.Row(ref=files),
+                            
+                        ],ft.MainAxisAlignment.START),
+                        ft.Row([
                             ft.ElevatedButton(
                                 "Upload",
                                 ref=upload_button,
@@ -180,11 +182,11 @@ def main(page: ft.Page):
                                 disabled=True,
                                 
                             ),
-                        ],ft.MainAxisAlignment.START),
+                            ]),
                             ft.ElevatedButton(
                                 "表の抽出",
                                 ref=viewmatrix_button,
-                                icon=ft.icons.UPLOAD,
+                                icon=ft.icons.DOWNLOADING,
                                 on_click=print("表の抽出"),
                                 disabled=True,
                             ),

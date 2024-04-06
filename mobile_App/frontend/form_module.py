@@ -1,8 +1,6 @@
 import flet as ft
 
 name = "Pick multiple files"
-
-
 def example():
     class Example(ft.Row):
         def __init__(self):

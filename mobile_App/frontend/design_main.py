@@ -63,3 +63,6 @@ def Homedesign(page):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
                 ),
             )
+    
+    #sample.pyを適用する形にする
+    #sample.pyにおけるファイルの読み込む機能が一つのファイルパスにのみ有効となっているため、複数個の処理を可能とする
