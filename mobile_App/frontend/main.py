@@ -1,8 +1,12 @@
-from ctypes import alignment
+
 import flet as ft
 import pandas as pd
 from typing import Dict
 import os 
+
+from backend import files_judgement as bf_judge
+
+
 
 data_global = {}
 def main(page: ft.Page):
@@ -40,6 +44,8 @@ def main(page: ft.Page):
             testdata =pd.read_csv(read_path)
             print(testdata)
         print("アップロードが完了しました")
+        bf_judge.judgement(data_global)
+        print(bf_judge)
         upload_button.current.disabled = True
         viewmatrix_button.current.disabled = False
 
