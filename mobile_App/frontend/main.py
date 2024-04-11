@@ -3,9 +3,8 @@ import flet as ft
 import pandas as pd
 from typing import Dict
 import os 
-
 from backend import files_judgement as bf_judge
-
+import make_data
 
 
 data_global = {}
@@ -169,7 +168,7 @@ def main(page: ft.Page):
                             
                         ),
                         
-                        ft.AppBar(title=ft.Text("Editting Table"), bgcolor=ft.colors.BLUE),
+                        ft.AppBar(title=ft.Text("Select Data"), bgcolor=ft.colors.BLUE),
                         ft.Row([
                             ft.ElevatedButton(
                                 "Select files...",
@@ -193,7 +192,58 @@ def main(page: ft.Page):
                                 "表の抽出",
                                 ref=viewmatrix_button,
                                 icon=ft.icons.DOWNLOADING,
-                                on_click=print("表の抽出"),
+                                on_click=lambda _:  [print("Clickable with Ink clicked!"), page.go("/mathLogic/extractTable")],
+                                disabled=True,
+                            ),
+                    ],
+                    bgcolor = ft.colors.WHITE
+                )
+            )
+            
+        if page.route == "/mathLogic/extractTable":
+            page.views.append(
+                ft.View(
+                    "/mathLogic/extractTable",
+                    [
+                    ft.Column(
+                        [
+                        ft.Container(
+                        ft.Text("ここでは表の抽出を行います。",color=ft.colors.BLACK,text_align=ft.TextAlign.CENTER ),
+                        height = 100,
+                        width=300,
+                        
+                        
+                        ),
+                        
+                            ],
+                            spacing=100,
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            
+                        ),
+                        
+                        ft.AppBar(title=ft.Text("extract table"), bgcolor=ft.colors.BLUE),
+                        
+                        #ここにデータに表の出力をおこなう
+                        
+                        ft.Row([           
+                             make_data.make_Table(data_global.values())             
+                        ],ft.MainAxisAlignment.START),
+                        ft.Row([
+                            ft.ElevatedButton(
+                                "Upload",
+                                ref=upload_button,
+                                icon=ft.icons.UPLOAD,
+                                on_click=upload_files,
+                                disabled=True,
+                                
+                            ),
+                            ]),
+                            
+                            ft.ElevatedButton(
+                                "表の抽出",
+                                ref=viewmatrix_button,
+                                icon=ft.icons.DOWNLOADING,
+                                on_click=print("表の抽出ページ"),
                                 disabled=True,
                             ),
                     ],
